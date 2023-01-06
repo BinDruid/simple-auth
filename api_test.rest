@@ -1,0 +1,8 @@
+### Variables
+@base = http://127.0.0.1:4030
+@username = 
+@email = 
+@auth-token = 
+###
+curl -X POST "http://127.0.0.1:4030/auth/token/login/" \
+     --data 'username= &password= '
