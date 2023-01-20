@@ -1,13 +1,13 @@
 <template>
     <v-row no-gutters class="pa-1 ma-2" justify="center" dir="ltr">
-        <v-col cols="6">
+        <v-col lg="4" md="6" sm="8" xs="12">
             <v-alert v-if="errorMessage" prominent closable type="error" variant="outlined">
                 {{ errorMessage }}
             </v-alert>
         </v-col>
     </v-row>
     <v-row no-gutters class="pa-1" justify="center">
-        <v-col cols="4">
+        <v-col lg="4" md="6" sm="8" xs="12">
             <v-tabs fixed-tabs bg-color="indigo-darken-2" v-model="tab">
                 <v-tab value="signin" @click="clear">
                     <h2>ورود</h2>
@@ -23,8 +23,11 @@
                             <v-text-field class="mb-2" v-model="username" :readonly="loading" :rules="[required]"
                                 clearable label="نام کاربری"></v-text-field>
 
-                            <v-text-field v-model="password" :readonly="loading" type="password" :rules="[required]"
-                                clearable label="رمز عبور" placeholder="رمز عبور را وارد نمائید"></v-text-field>
+                            <v-text-field v-model="password" :readonly="loading"
+                                :append-inner-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
+                                :type="showPass ? 'text' : 'password'" @click:append-inner="showPass = !showPass"
+                                :rules="[required]" clearable label="رمز عبور"
+                                placeholder="رمز عبور را وارد نمائید"></v-text-field>
 
                             <br>
 
@@ -42,8 +45,11 @@
                             <v-text-field class="mb-2" v-model="email" :readonly="loading" :rules="[required]" clearable
                                 label="ایمیل"></v-text-field>
 
-                            <v-text-field v-model="password" :readonly="loading" type="password" :rules="[required]"
-                                clearable label="رمز عبور" placeholder="رمز عبور را وارد نمائید"></v-text-field>
+                            <v-text-field v-model="password" :readonly="loading"
+                                :append-inner-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
+                                :type="showPass ? 'text' : 'password'" @click:append-inner="showPass = !showPass"
+                                :rules="[required]" clearable label="رمز عبور"
+                                placeholder="رمز عبور را وارد نمائید"></v-text-field>
 
                             <br>
 
@@ -61,14 +67,16 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router';
 import axios from "axios";
-const router = useRouter()
+import useAuth from "@/hooks/useAuth";
+
+const { login } = useAuth()
 const { VITE_API_URL: API_URL } = import.meta.env
 
 const email = ref("")
 const username = ref("")
 const password = ref("")
+const showPass = ref(false)
 const form = ref(false)
 const loading = ref(false)
 const errorMessage = ref(null)
@@ -78,6 +86,7 @@ const clear = () => {
     email.value = null
     username.value = null
     password.value = null
+    showPass.value = false
 }
 
 const signIn = async () => {
@@ -87,14 +96,12 @@ const signIn = async () => {
             username: username.value,
             password: password.value
         })
-        localStorage.setItem('authToken', data.auth_token)
-        localStorage.setItem('username', username.value)
-        router.go({ path: '/profile' })
+        login(data.auth_token, username.value)
     }
     catch (err) {
         errorMessage.value = err.response.data.errors[0].detail
     }
-    setTimeout(() => (loading.value = false), 2000)
+    setTimeout(() => (loading.value = false), 1000)
 }
 
 const signUp = async () => {
@@ -110,7 +117,7 @@ const signUp = async () => {
     catch (err) {
         errorMessage.value = err.response.data.errors[0].detail
     }
-    setTimeout(() => (loading.value = false), 2000)
+    setTimeout(() => (loading.value = false), 1000)
 }
 
 const required = (value) => {

@@ -1,23 +1,26 @@
+import { storeToRefs } from "pinia"
 import { createWebHistory, createRouter } from "vue-router"
-import TheHome from "./pages/TheHome.vue"
-import TheProfile from "./pages/TheProfile.vue"
-import UserAuth from "./pages/UserAuth.vue"
+import UserAuth from "@/pages/UserAuth.vue"
+import TheHome from "@/pages/TheHome.vue"
+import TheProfile from "@/pages/TheHome.vue"
+import useAuthStore from "@/store/authStore"
 
 const routes = [
   {
-    path: "/",
-    name: "Home",
-    component: TheHome,
+    path: "/profile",
+    name: "profile",
+    component: TheProfile,
+    meta: { requiresAuth: true },
   },
   {
-    path: "/profile",
-    name: "Profile",
-    component: TheProfile,
+    path: "/",
+    name: "home",
+    component: TheHome,
   },
 
   {
     path: "/auth",
-    name: "UserAuth",
+    name: "auth",
     component: UserAuth,
   },
 ]
@@ -28,13 +31,9 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  if (
-    localStorage.getItem("authToken") !== null ||
-    to.path === "/auth" ||
-    to.path === "/"
-  )
-    next()
-  else next("/auth")
+  const { logged } = storeToRefs(useAuthStore())
+  if (!logged.value && to.meta.requiresAuth) next("/auth")
+  else next()
 })
 
 export default router
